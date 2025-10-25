@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三国卡牌对决</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(to bottom, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #f0e6d2;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            border: 2px solid #c8aa6e;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(to right, #c8aa6e, #f0e6d2, #c8aa6e);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #f0e6d2;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            font-size: 2.5rem;
+            letter-spacing: 5px;
+        }
+        
+        .scene {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .active {
+            display: block;
+        }
+        
+        .story-text {
+            background: rgba(20, 20, 20, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #c8aa6e;
+            line-height: 1.6;
+            font-size: 1.2rem;
+        }
+        
+        .options {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .option-btn {
+            background: linear-gradient(to bottom, #785a28, #463714);
+            color: #f0e6d2;
+            border: 2px solid #c8aa6e;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .option-btn:hover {
+            background: linear-gradient(to bottom, #c8aa6e, #785a28);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .start-btn {
+            display: block;
+            margin: 0 auto;
+            background: linear-gradient(to bottom, #c8aa6e, #785a28);
+            color: #1a1a1a;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.3rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+        }
+        
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+        }
+        
+        .result {
+            text-align: center;
+            font-size: 1.4rem;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .win {
+            background: rgba(0, 100, 0, 0.3);
+            color: #90ee90;
+            border: 2px solid #90ee90;
+        }
+        
+        .lose {
+            background: rgba(139, 0, 0, 0.3);
+            color: #ff6b6b;
+            border: 2px solid #ff6b6b;
+        }
+        
+        .character {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+        
+        .player, .opponent {
+            text-align: center;
+            width: 45%;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .player {
+            background: rgba(0, 50, 100, 0.5);
+            border: 2px solid #4a90e2;
+        }
+        
+        .opponent {
+            background: rgba(100, 0, 0, 0.5);
+            border: 2px solid #e24a4a;
+        }
+        
+        .character-name {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #f0e6d2, #c8aa6e);
+            color: #1a1a1a;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 2px solid #785a28;
+            font-weight: bold;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .restart-btn {
+            display: block;
+            margin: 20px auto 0;
+            background: linear-gradient(to bottom, #463714, #785a28);
+            color: #f0e6d2;
+            border: 2px solid #c8aa6e;
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+        
+        .restart-btn:hover {
+            background: linear-gradient(to bottom, #785a28, #463714);
+        }
+        
+        @media (max-width: 600px) {
+            .options {
+                flex-direction: column;
+            }
+            
+            .character {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .player, .opponent {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>三国卡牌对决</h1>
+        
+        <div class="scene active" id="scene1">
+            <div class="story-text">
+                <p>欢迎来到三国卡牌世界！在这里，你将与历史上的名将展开激烈的卡牌对决。</p>
+                <p>准备好开始你的旅程了吗？</p>
+            </div>
+            <button class="start-btn" onclick="showScene(2)">开始怼怼之旅</button>
+        </div>
+        
+        <div class="scene" id="scene2">
+            <div class="character">
+                <div class="player">
+                    <div class="character-name">你</div>
+                    <div class="card">功勋阵</div>
+                </div>
+                <div class="opponent">
+                    <div class="character-name">对手</div>
+                    <div class="card">关羽御灵15钟张</div>
+                </div>
+            </div>
+            <div class="story-text">
+                <p>你的对手是关羽御灵15钟张，而你是功勋阵。</p>
+                <p>战斗即将开始！</p>
+            </div>
+            <button class="start-btn" onclick="showScene(3)">继续</button>
+        </div>
+        
+        <div class="scene" id="scene3">
+            <div class="story-text">
+                <p>对面下出了12孙坚！</p>
+                <p>现在轮到你做出应对，请选择你的策略：</p>
+            </div>
+            <div class="options">
+                <button class="option-btn" onclick="selectOption('A', 4)">A. 下12曹植</button>
+                <button class="option-btn" onclick="selectOption('B', 5)">B. 下廖化</button>
+            </div>
+        </div>
+        
+        <div class="scene" id="scene4">
+            <div class="story-text">
+                <p>你选择了下12曹植。</p>
+                <p>你勾出了对面的舞袖钟会！</p>
+            </div>
+            <button class="start-btn" onclick="showScene(6)">继续</button>
+        </div>
+        
+        <div class="scene" id="scene5">
+            <div class="story-text">
+                <p>你选择了下廖化。</p>
+                <p class="lose">你亏了6费，陷入劣势！</p>
+            </div>
+            <button class="start-btn" onclick="showScene(6)">继续</button>
+        </div>
+        
+        <div class="scene" id="scene6">
+            <div class="story-text">
+                <p>对面用高顺拉出了钟会，并打出钟张！</p>
+                <p>形势危急，你必须立即做出应对：</p>
+            </div>
+            <div class="options">
+                <button class="option-btn" onclick="selectOption('A', 7)">A. 打出邓艾赚费</button>
+                <button class="option-btn" onclick="selectOption('B', 8)">B. 用金身挡住大军</button>
+            </div>
+        </div>
+        
+        <div class="scene" id="scene7">
+            <div class="story-text">
+                <p>你选择了打出邓艾赚费。</p>
+                <p class="lose">你的邓艾被15张松砸死了，你没费用了，对面一鼓作气将你平推了！</p>
+            </div>
+            <button class="restart-btn" onclick="restartGame()">重新开始</button>
+        </div>
+        
+        <div class="scene" id="scene8">
+            <div class="story-text">
+                <p>你选择了用金身挡住大军。</p>
+                <p class="win">你拖住了对面，并掌握了节奏，你赢了！</p>
+            </div>
+            <button class="restart-btn" onclick="restartGame()">重新开始</button>
+        </div>
+    </div>
+
+    <script>
+        function showScene(sceneNumber) {
+            // 隐藏所有场景
+            const scenes = document.querySelectorAll('.scene');
+            scenes.forEach(scene => {
+                scene.classList.remove('active');
+            });
+            
+            // 显示指定场景
+            document.getElementById(`scene${sceneNumber}`).classList.add('active');
+        }
+        
+        function selectOption(option, nextScene) {
+            showScene(nextScene);
+        }
+        
+        function restartGame() {
+            showScene(1);
+        }
+    </script>
+</body>
+</html>
